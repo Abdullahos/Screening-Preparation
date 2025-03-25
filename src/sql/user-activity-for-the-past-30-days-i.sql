@@ -37,7 +37,7 @@ FROM
     WHERE
        a1.activity_date > '2019-06-27' AND a1.activity_date <= '2019-07-27'
     GROUP BY
-        a1.user_id, a1.activity_date
+        a1.user_id, a1.activity_date  --For removing duplicates as we count users not sessions
     ) as sb
 
 GROUP BY

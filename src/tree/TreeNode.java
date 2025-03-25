@@ -5,6 +5,8 @@ public class TreeNode {
     TreeNode left;
     TreeNode right;
 
+    TreeNode parent;
+
     TreeNode() {
     }
 
