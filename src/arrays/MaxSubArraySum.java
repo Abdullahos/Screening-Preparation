@@ -14,13 +14,8 @@ public class MaxSubArraySum {
         }
         while (r < n) {
             acc += nums[r];
-            while (acc < 0 && l < n)  {
-                acc -= nums[l];
-                l++;
-                if (r < l && l < n) {
-                    r = l;
-                    acc += nums[r];
-                }
+            if (acc < 0) {
+                acc = 0;
             }
             r++;
             max = Math.max(max, acc);
