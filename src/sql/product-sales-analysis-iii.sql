@@ -73,3 +73,25 @@ FROM
     ) as sb
 WHERE
     sb.rn = 1
+
+
+-- better not simpler
+SELECT
+    SB.product_id as product_id,
+    SB.first_year as first_year,
+    SB.quantity as quantity,
+    SB.price as price
+FROM
+    (
+        SELECT
+            product_id as product_id,
+            year as first_year,
+            quantity as quantity,
+            price as price,
+            dense_rank() OVER (partition BY (product_id) ORDER BY year ASC) as dn
+        FROM
+            sales
+    )
+        as SB
+WHERE
+    SB.dn = 1

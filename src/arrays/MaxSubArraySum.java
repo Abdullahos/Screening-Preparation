@@ -3,20 +3,12 @@ package arrays;
 public class MaxSubArraySum {
 
     public int maxSubArray(int[] nums) {
-        int l = 0, r = 0;
-        int max = Integer.MIN_VALUE;
-        int acc = 0;
+        int i = 1, sum = nums[0], max = sum;
         int n = nums.length;
-        while (r < n && nums[r] < 0) {
-            max = Math.max(max, nums[r]);
-            r++;
-            l++;
-        }
-        while (r < n) {
-            acc = Math.max(acc, 0);
-            acc += nums[r];
-            r++;
-            max = Math.max(max, acc);
+
+        for (; i < n; i++) {
+            sum = Math.max(sum + nums[i] ,nums[i]);
+            max = Math.max(max, sum);
         }
 
         return max;
