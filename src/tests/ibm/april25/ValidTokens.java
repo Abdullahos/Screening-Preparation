@@ -31,8 +31,6 @@ public class ValidTokens {
         consonant.add('y');
         consonant.add('z');
 
-
-
         int counts = 0;
         for (String tkn : tokenString.split(" ")) {
             if (isValid(tkn, consonant)) {
