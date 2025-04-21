@@ -3,7 +3,7 @@ package binarysearch;
 import java.util.Arrays;
 
 public class SearchInRotatedSortedArray {
-    public int search(int[] nums, int target) {
+    public static int search(int[] nums, int target) {
         if (nums[0] <= nums[nums.length - 1]) {
             int idx = Arrays.binarySearch(nums, target);
             return idx >= 0 ? idx : -1;
@@ -20,7 +20,7 @@ public class SearchInRotatedSortedArray {
 
     }
 
-    private int getRotatedPivotIdx(int[] nums) {
+    public static int getRotatedPivotIdx(int[] nums) {
         int l = 0, r = nums.length - 1, mid = l + (r - l) / 2;
         while (l <= r) {
             if (nums[mid] < nums[l]) {
