@@ -28,7 +28,7 @@ public class Permutating2Arrays {
                 } else {
                     idx = Collections.binarySearch(B, k - a - 1);
                     if (idx < 0) {
-                        idx = 0;
+                        idx =  -idx - 1;
                     }
                 }
                 j = idx;
