@@ -95,17 +95,6 @@ public class ThreeSumMulti {
         return counts;
     }
 
-    private int getCounts(int[] arr, int counts, int l, Map<Integer, Integer> map, int alreadyLeftInEnumeration, int r,
-                          int alreadyRightInEnumeration) {
-        counts += getCountsBeforeMoving(arr[l], map, alreadyLeftInEnumeration)
-                * getCountsBeforeMoving(arr[r], map, alreadyRightInEnumeration);
-        return counts;
-    }
-
-    private int getCountsBeforeMoving(int toBeMovedBy, Map<Integer, Integer> map, int alreadyInEnumeration) {
-        return map.get(toBeMovedBy) - alreadyInEnumeration;
-    }
-
     public static void main(String[] args) {
         ThreeSumMulti threeSumMulti = new ThreeSumMulti();
         System.out.println(threeSumMulti.threeSumMulti_Two_Pointers(new int[]{1, 1, 2, 2, 3, 3, 4, 4, 5, 5}, 8));
