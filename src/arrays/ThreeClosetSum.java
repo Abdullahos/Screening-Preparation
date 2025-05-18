@@ -4,38 +4,30 @@ import java.util.Arrays;
 
 public class ThreeClosetSum {
     //O(n^3)
-    public int threeSumClosestBruteForce(int[] nums, int target) {
-        Integer closetSum = null;
-        Arrays.sort(nums);
-        for (int i = 0; i < nums.length - 2; i++) {
+    public Integer threeSumClosestBruteForce(int[] nums, int target) {
+        Integer closetVal = null;
+
+        for (int i = 0; i < nums.length; i++) {
+            int l = nums[i];
             for (int j = i + 1; j < nums.length; j++) {
-                int idx = Arrays.binarySearch(nums, j + 1, nums.length, target - (nums[i] + nums[j]));
-                if (idx < 0) {
-                    idx = -1 - idx;
-                    while ((idx == nums.length || idx == j || idx == i) && idx >= 0) {
-                        idx--;
+                int m = nums[j];
+                for (int k = j + 1; k < nums.length; k++) {
+                    int r = nums[k];
+                    if (closetVal == null) {
+                        closetVal = l + m + r;
                     }
-                    while ((idx < 0 || idx == j || idx == i) && idx < nums.length) {
-                        idx++;
+                    else if (Math.abs(target - closetVal) > Math.abs(l + m + r - target)) {
+                        closetVal = l + m + r;
                     }
-                }
-                int acc = nums[i] + nums[j] + nums[idx];
-                if (closetSum == null) {
-                    closetSum = acc;
-                }
-                else if (Math.abs(target - closetSum) > Math.abs(target - acc)) {
-                    closetSum = acc;
-                }
-                if (target == closetSum) {
-                    return closetSum;
                 }
             }
         }
-        return closetSum;
+
+        return closetVal;
     }
 
     //O(n * log(n) * n)
-    public int threeSumClosestBinarySearch(int[] nums, int target) {
+    public Integer threeSumClosestBinarySearch(int[] nums, int target) {
         Integer closetSum = null;
         Arrays.sort(nums);
         for (int i = 0; i < nums.length - 2; i++) {
@@ -44,7 +36,7 @@ public class ThreeClosetSum {
                 int acc = nums[i] + nums[j];
                 if (idx < 0) {
                     idx = -1-idx;
-                    while ((idx == nums.length || idx == j || idx == i) && idx >= 0) {
+                    while ((idx == nums.length || idx == j || idx == i)) {
                         idx--;
                     }
                     while ((idx < 0 || idx == j || idx == i) && idx < nums.length) {
@@ -74,7 +66,7 @@ public class ThreeClosetSum {
 
 
     //O(n^2)
-    public int threeSumClosest_twoPointers(int[] nums, int target) {
+    public Integer threeSumClosest_twoPointers(int[] nums, int target) {
         Arrays.sort(nums);
         int closetSum = nums[0] + nums[1] + nums[2];
         for (int i = 0; i < nums.length - 2; i++) {
