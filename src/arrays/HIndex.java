@@ -16,7 +16,7 @@ import java.util.Comparator;
 
     [100,200,1]
 
-    [1,100,200]
+    [1,100,200] ans 2
  */
 public class HIndex {
 
