@@ -30,4 +30,31 @@ public class HIndex {
         return n - i;
     }
 
+    //Using count sort, Bucket sort
+    public int hIndex2(int[] citations) {
+        int n = citations.length;
+        if (n == 0)
+            return 0;
+        int[] counts = new int[n + 1];
+
+        for (int citation : citations) {
+            if (citation > n) {
+                counts[n]++;
+            } else {
+                counts[citation]++;
+            }
+        }
+
+        int total = 0;
+        for (int i = n; i >= 0; i--) {
+            total += counts[i];
+            if (total >= i) {
+                return i;   //early return for the max i- > max H
+            }
+        }
+
+        return 0;
+    }
+
 }
+
