@@ -1,4 +1,4 @@
-package strings;
+package stringmanipulation;
 
 public class OneWay {
 

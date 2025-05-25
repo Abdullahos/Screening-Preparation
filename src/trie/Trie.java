@@ -31,10 +31,6 @@ public class Trie {
         return child;
     }
 
-    public boolean isLeaf() {
-        return children == null || children.isEmpty();
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass())

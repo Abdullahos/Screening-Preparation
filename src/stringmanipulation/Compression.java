@@ -1,4 +1,4 @@
-package strings;
+package stringmanipulation;
 //Note that sb double its size when it’s full
 public class Compression {
 
