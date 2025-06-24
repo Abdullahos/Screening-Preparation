@@ -1,74 +1,52 @@
 package arrays;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class RecoverInverseCoinChange {
-    int ways = 0;
-
     public List<Integer> findCoins(int[] numWays) {
-        Set<Integer> coins = new HashSet<>();
+        int n = numWays.length;
+        List<Integer> coins = new ArrayList<>(n);
 
-        for (int amount = 1; amount <= numWays.length; amount++) {
-
-            int ways = numWays[amount - 1];
-
-            if (ways <= 0)
-                continue;
-
-            this.ways = ways;
-
-            dfs(amount, numWays, new HashSet<>(), coins, new ArrayList<>());
-
-            if (this.ways == 1) {
-                coins.add(amount);
+        for (int i = 1; i <= n; i++) {
+            if (coins.size() == 0 && numWays[i - 1] == 1) {
+                coins.add(i);
+            } else {
+                int actualWays = getActualWays(i, coins, 0, new HashMap<>());
+                if (actualWays == numWays[i - 1]) {
+                }
+                else if (actualWays + 1 == numWays[i - 1]) {
+                    coins.add(i);
+                } else {
+                    return new ArrayList<>();
+                }
             }
-            else if (this.ways > 0) {
-                return new ArrayList<>();
-            }
-
-            this.ways = 0;
-
         }
 
-        return new ArrayList<>(coins);
+        return coins;
     }
 
-    private void dfs(int amount, int[] numWays, Set<List<Integer>> allcombinations, Set<Integer> unique, List<Integer> orderedCoins) {
-        if (ways == 0) {
-            return;
-        }
-
+    private int getActualWays(int amount, List<Integer> coins, int start, Map<String, Integer> memo) {
         if (amount == 0) {
-            orderedCoins.sort(Integer::compareTo);
-            if (allcombinations.add(orderedCoins)) {
-                unique.addAll(orderedCoins);
-                ways--;
-            }
-            return;
+            return 1;
         }
 
         if (amount < 0) {
-            return;
+            return 0;
         }
 
-        for (Integer i = 1; i <= amount; i++) {
-            if (numWays[i - 1] == 0 || !unique.contains(i)) {
-                continue;
-            }
-
-            orderedCoins.add(i);
-            dfs(amount - i, numWays, allcombinations, unique, orderedCoins);
-            orderedCoins.remove(i);
-
+        String key = amount + ":" + start;
+        if (memo.containsKey(key)) {
+            return memo.get(key);
         }
 
-    }
+        int ways = 0;
 
-    public static void main(String[] args) {
-        RecoverInverseCoinChange cc = new RecoverInverseCoinChange();
-        cc.findCoins(new int[] {1,2,2,3,4});
+        for (int i = start; i < coins.size(); i++) {
+            ways += getActualWays(amount - coins.get(i), coins, i, memo);
+        }
+
+        memo.put(key, ways);
+
+        return ways;
     }
 }
