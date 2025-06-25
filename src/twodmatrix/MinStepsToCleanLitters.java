@@ -1,63 +1,88 @@
 package twodmatrix;
 
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 //TODO: need more tuning
 public class MinStepsToCleanLitters {
+
+    int totalLitter = 0;
+    Map<Integer, Integer> litterPosToBit = new HashMap<>(); // map (i * cols + j) -> bit index
+
     public int minMoves(String[] classroom, int energy) {
-        int n = classroom.length, m = classroom[0].length();
-
-        //find the s
-        int litters = 0;
+        int rows = classroom.length;
+        int cols = classroom[0].length();
         int si = 0, sj = 0;
+        int bitIndex = 0;
 
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-
-                char c = classroom[i].charAt(j);
-
-                if (c == 'S') {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                char cell = classroom[i].charAt(j);
+                if (cell == 'S') {
                     si = i;
                     sj = j;
-                } else if (c == 'L') {
-                    litters++;
+                } else if (cell == 'L') {
+                    litterPosToBit.put(i * cols + j, bitIndex++);
+                    totalLitter++;
                 }
             }
         }
 
-        //discover all possibilites dfs and get the min moves or -1
-        int minSteps = dfs(classroom, si, sj, n, m, energy, energy, 0, new boolean[n][m], litters, 0);
-
-        return  minSteps == Integer.MAX_VALUE ? -1 : minSteps;
+        int result = dfs(classroom, energy, energy, si, sj, 0, 0, new HashSet<>());
+        return result == Integer.MAX_VALUE ? -1 : result;
     }
 
-    int dfs(String[] classroom, int r, int c, int n, int m, int energy, int accEnergy, int steps, boolean[][] visited, int litters, int accLitters) {
-        if (r == n || r == -1 || c == m || c == -1 || visited[r][c] || classroom[r].charAt(c) == 'X') {
+    private int dfs(String[] classroom, int remainingEnergy, int energy,
+                    int i, int j, int moves,
+                    int collectedMask, Set<String> states) {
+
+        int rows = classroom.length, cols = classroom[0].length();
+
+        if (i < 0 || i >= rows || j < 0 || j >= cols || classroom[i].charAt(j) == 'X' || remainingEnergy < 0) {
             return Integer.MAX_VALUE;
         }
 
-        char car = classroom[r].charAt(c);
-
-        if (car == 'R') {
-            accEnergy = energy + 1;
-        } else if (car == 'L') {
-            accLitters++;
-        }
-
-        if (accLitters == litters) {
-            return steps;
-        }
-
-        if (accEnergy == -1) {
+        String stateKey = remainingEnergy + "," + collectedMask + "," + i + "," + j;
+        if (!states.add(stateKey)) {
             return Integer.MAX_VALUE;
         }
 
-        visited[r][c] = true;
+        char cell = classroom[i].charAt(j);
 
-        int down = dfs(classroom, r + 1, c, n, m, energy, accEnergy - 1, steps + 1, visited.clone(), litters, accLitters);
-        int up = dfs(classroom, r - 1, c, n, m, energy, accEnergy - 1, steps + 1, visited.clone(), litters, accLitters);
-        int left = dfs(classroom, r, c - 1, n, m, energy, accEnergy - 1, steps + 1, visited.clone(), litters, accLitters);
-        int right = dfs(classroom, r, c + 1, n, m, energy, accEnergy - 1, steps + 1, visited.clone(), litters, accLitters);
+        if (cell == 'R') {
+            remainingEnergy = energy; // recharge
+        }
 
-        return Math.min(down, Math.min(up, Math.min(left, right)));
+        if (cell == 'L') {
+            int pos = i * cols + j;
+            int bit = litterPosToBit.get(pos);
+            if ((collectedMask & (1 << bit)) == 0) {
+                collectedMask |= (1 << bit);
+            }
+        }
+
+        if (Integer.bitCount(collectedMask) == totalLitter) {
+            states.remove(stateKey);
+            return moves;
+        }
+
+        int min = Integer.MAX_VALUE;
+        // Down, Up, Left, Right
+        min = Math.min(min, dfs(classroom, remainingEnergy - 1, energy, i + 1, j, moves + 1, collectedMask, states));
+        min = Math.min(min, dfs(classroom, remainingEnergy - 1, energy, i - 1, j, moves + 1, collectedMask, states));
+        min = Math.min(min, dfs(classroom, remainingEnergy - 1, energy, i, j - 1, moves + 1, collectedMask, states));
+        min = Math.min(min, dfs(classroom, remainingEnergy - 1, energy, i, j + 1, moves + 1, collectedMask, states));
+
+        states.remove(stateKey);
+
+        return min;
+    }
+
+    public static void main(String[] args) {
+        MinStepsToCleanLitters obj = new MinStepsToCleanLitters();
+        obj.minMoves(new String[] {"LR..R", "..SLX"}, 9);
     }
 }
