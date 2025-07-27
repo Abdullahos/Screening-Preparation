@@ -16,7 +16,7 @@ public class DisjointSet {
         return parent[x] = find(parent[x]); //updating as dp instead of going all the way up every time
     }
 
-    boolean union(int a, int b) {
+    public boolean union(int a, int b) {
         int parentA = find(a);
         int parentB = find(b);
 
