@@ -3,9 +3,12 @@ package algorithms.graph;
 public class DisjointSet {
 
     int[] parent;
+    int[] rank;
 
     public DisjointSet(int n) {
         parent = new int[n];
+        rank = new int[n];
+
         for (int i = 0; i < n; i++) {
             parent[i] = i;
         }
@@ -16,7 +19,7 @@ public class DisjointSet {
         return parent[x] = find(parent[x]); //updating as dp instead of going all the way up every time
     }
 
-    public boolean union(int a, int b) {
+    public  boolean union(int a, int b) {
         int parentA = find(a);
         int parentB = find(b);
 
@@ -24,7 +27,17 @@ public class DisjointSet {
             return false;
         }
 
+        if (rank[parentA] < rank[parentB]) {
+            parent[parentA] = parentB;
+        } else if (rank[parentA] > rank[parentB]) {
+            parent[parentB] = parentA;
+        } else {
+            parent[parentB] = parentA;
+            rank[parentA]++;
+        }
+
         parent[parentA] = parentB;
+
         return true;
     }
 
