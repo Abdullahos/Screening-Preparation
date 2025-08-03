@@ -108,9 +108,7 @@ public class CheapestFlightsWithMinCost {
         Map<Integer, List<int[]>> map = new HashMap<>();
 
         for (int[] flight : flights) {
-            List<int[]> mapping = map.getOrDefault(flight[0], new ArrayList<>());
-            mapping.add(new int[] {flight[1], flight[2]});
-            map.putIfAbsent(flight[0], mapping);
+            map.computeIfAbsent(flight[1], a -> new ArrayList<>()).add(new int[] {flight[1], flight[2]});
         }
 
         pq.offer(new int[] {0, src, 0});
