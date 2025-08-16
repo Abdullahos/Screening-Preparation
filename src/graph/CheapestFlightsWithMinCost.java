@@ -1,6 +1,7 @@
 package graph;
 
 import java.util.*;
+
 /*
 Yeah, but I feel like it's not deterministic. Like, it depends on the test cases, because I also can visit the same node again. Also, it doesn't depend only on the steps. It depends, as I said, on the steps and the cost. But what if the steps is more and still within the valid range, but it's cheaper to take the steps. For example, I take 100 steps each for zero or one, and I have a buffer of maybe 150k steps. So it's still in the valid range, and that leads to a globally better solution. So I think that's working only because this test case will not work every time. I think so. What do you think?
 
@@ -44,9 +45,6 @@ Here's how we can improve this:
 Dual Memoization:
 Track both the cost and number of stops for each node, ensuring that you consider all possibilities for revisiting a node.
 
-java
-Copy
-Edit
 // Memoization approach with cost and steps
 Map<Integer, Map<Integer, Integer>> visited = new HashMap<>();
 Here, we have:
@@ -101,39 +99,44 @@ Prune paths that don't improve: Instead of completely ignoring a path because a 
 The key here is not just tracking whether a node has been visited, but also ensuring that when revisiting a node, you're still within the acceptable bounds for the number of steps and the cost.
  */
 public class CheapestFlightsWithMinCost {
-    public int findCheapestPrice(int n, int[][] flights, int src, int dst, int k) {
+    public int findCheapestPrice(int n, int[][] flights, int src, int dst, int maxAllowedStops) {
 
         Queue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[0]));
 
         Map<Integer, List<int[]>> map = new HashMap<>();
 
         for (int[] flight : flights) {
-            map.computeIfAbsent(flight[1], a -> new ArrayList<>()).add(new int[] {flight[1], flight[2]});
+            map.computeIfAbsent(flight[0], _ -> new ArrayList<>()).add(new int[]{flight[1], flight[2]});
         }
 
-        pq.offer(new int[] {0, src, 0});
+        Map<Integer, int[]> dp = new HashMap<>(); //node, minCost, minStops
+
+        pq.offer(new int[]{0, src, 0});
 
         while (!pq.isEmpty()) {
             int[] p = pq.remove();
 
-            int w = p[0];
-            int u = p[1];
-            int s = p[2];
+            int accCost = p[0];
+            int currentStop = p[1];
+            int stops = p[2];
 
-            if (u == dst) {
-                return w;
+            if (currentStop == dst) {
+                return accCost;
             }
 
-            if (s > k) {
+            if (stops > maxAllowedStops || (dp.containsKey(currentStop) && dp.get(currentStop)[0] <= accCost
+                    && dp.get(currentStop)[1] <= stops)) {
                 continue;
             }
 
-            if (!map.containsKey(u)) {
+            dp.put(currentStop, new int[]{accCost, stops});
+
+            if (!map.containsKey(currentStop)) {
                 continue;
             }
 
-            for (int[] flight : map.get(u)) {
-                pq.offer(new int[] {w + flight[1] ,flight[0], s + 1});   //cost, u, steps
+            for (int[] flight : map.get(currentStop)) {
+                pq.offer(new int[]{accCost + flight[1], flight[0], stops + 1}); //accCost, currentStop, steps
             }
 
         }
@@ -207,13 +210,13 @@ public class CheapestFlightsWithMinCost {
                     continue;
                 }
 
-                pq.offer(new int[] {fly[2], fly[1]});
+                pq.offer(new int[]{fly[2], fly[1]});
             }
 
             int price = backTrack(flights, src, dst, k, pq, visited, cheapestPrice, stops);
 
             if (price != Integer.MAX_VALUE) {
-                return  price;
+                return price;
             }
 
             visited.remove(u);
