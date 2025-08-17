@@ -145,6 +145,42 @@ public class CheapestFlightsWithMinCost {
 
     }
 
+    /**
+     * In code:
+     * int[][] dp = new int[maxAllowedStops + 2][n];
+     *
+     *
+     * +1 because arrays are 0-indexed (0 edges = source itself)
+     *
+     * +1 more to allow using exactly K stops, which corresponds to K+1 edges
+     *
+     * So dp[i][v] = min cost to reach v using i edges (0..K+1)
+     *
+     * That ensures the last edge to the destination is counted correctly.
+     */
+    private int findCheapestPrice_Bellman_Ford(int n, int[][] flights, int src, int dst, int maxAllowedStops) {
+        int[][] dp = new int[maxAllowedStops + 2][n];   // +2, logically it start with 0 stops to maxAllowedStops, but remember that maxAllowedStops = actual + 1 (as when we reach the dst it's not stop and 0-index)
+        for (int[] arr : dp) {
+            Arrays.fill(arr, Integer.MAX_VALUE);
+        }
+
+        dp[0][src] = 0;
+
+        for (int i = 1; i <= maxAllowedStops + 1; i++) {
+            dp[i] = Arrays.copyOf(dp[i - 1], n);
+
+            for (int[] flight : flights) {
+                int u = flight[0], v = flight[1], w = flight[2];
+                if (dp[i - 1][u] != Integer.MAX_VALUE && dp[i - 1][u] + w < dp[i][v]) {
+                    dp[i][v] = dp[i - 1][u] + w;
+                }
+            }
+        }
+
+        return dp[maxAllowedStops + 1][dst] == Integer.MAX_VALUE ? -1 : dp[maxAllowedStops + 1][dst];
+    }
+
+
     public static void main(String[] args) {
         CheapestFlightsWithMinCost c = new CheapestFlightsWithMinCost();
 
