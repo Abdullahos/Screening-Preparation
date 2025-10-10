@@ -1,12 +1,49 @@
 package arrays;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+
+//https://leetcode.com/problems/fruit-into-baskets/
 
 public class TotalFruits {
 
-
     public int totalFruit(int[] fruits) {
+        int currNoOfFruits = 0, maxNoOfFruits = 0;
+        int maxAllowedTypes = 2;
+        Map<Integer, Integer> typeToLastOccrIdx = new LinkedHashMap<>();
+        int i = 0, j = 0;
+
+        while (i < fruits.length) {
+            int type = fruits[i];
+
+            if (!typeToLastOccrIdx.containsKey(type) && typeToLastOccrIdx.size() == maxAllowedTypes) {
+                maxNoOfFruits = Math.max(maxNoOfFruits, currNoOfFruits);
+
+                int typeToRemove = typeToLastOccrIdx.keySet().iterator().next();
+
+                int lastOccIdxOfTypeToRemove = typeToLastOccrIdx.get(typeToRemove);
+
+                currNoOfFruits -= lastOccIdxOfTypeToRemove - j + 1;
+
+                j = lastOccIdxOfTypeToRemove + 1;
+
+                typeToLastOccrIdx.remove(typeToRemove);
+            }
+
+            currNoOfFruits++;
+
+            typeToLastOccrIdx.remove(type); //to rest the ordering so i can rely on iterator to get the last added (not modified)
+            typeToLastOccrIdx.put(type, i);
+
+            i++;
+
+        }
+
+        return Math.max(maxNoOfFruits, currNoOfFruits);
+    }
+
+    public int totalFruit2(int[] fruits) {
         if (fruits.length <= 2) {
             return fruits.length;
         }
