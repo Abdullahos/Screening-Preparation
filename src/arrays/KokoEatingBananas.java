@@ -1,8 +1,46 @@
 package arrays;
-
+//https://leetcode.com/problems/koko-eating-bananas/
 public class KokoEatingBananas {
 
+    //t: O(n log n), s: O(1)
     public int minEatingSpeed(int[] piles, int h) {
+        boolean canEatAll;
+
+        int l = 1, r = Integer.MAX_VALUE;
+
+        int k;
+        int lastGoodK = 1;
+
+        while (l <= r) {
+            k = l + (r - l) / 2;
+            canEatAll = canEat(piles, h, k);
+            if (canEatAll) {
+                r = k - 1;
+                lastGoodK = k;
+            } else {
+                l = k + 1;
+            }
+
+        }
+
+        return lastGoodK;
+    }
+
+    private boolean canEat(int[] piles, int h, int k) {
+
+        for (int pile : piles) {
+            h -= (pile / k) + (pile % k == 0 ? 0 : 1);
+            if (h < 0) {
+                break;
+            }
+        }
+
+        return h >= 0;
+    }
+
+
+
+    public int minEatingSpeed2(int[] piles, int h) {
         int k = 1;
 
         int max = Integer.MIN_VALUE;
