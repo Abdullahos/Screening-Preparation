@@ -3,98 +3,50 @@ package arrays;
 public class Tictactoe {
     private static final String A = "A";
     private static final String B = "B";
-
+    private static final int size = 3;
 
     public String tictactoe(int[][] moves) {
-        char[][] normalizedMoves = new char[3][3];
+        PlayerTracker playerA = new PlayerTracker();
+        PlayerTracker playerB = new PlayerTracker();
 
         for (int i = 0; i < moves.length; i++) {
-            int x = moves[i][0];
-            int y = moves[i][1];
-            normalizedMoves[x][y] = i % 2 == 0 ? 'X' : 'O';
-        }
-
-        String winner = judge_horizontal(normalizedMoves);
-        if (winner != null) return winner;
-
-        winner = judge_vertical(normalizedMoves);
-        if (winner != null) return winner;
-
-        winner = judge_right_diagonal(normalizedMoves);
-        if (winner != null) return winner;
-
-        winner = judge_left_diagonal(normalizedMoves);
-        if (winner != null) return winner;
-
-        if (moves.length == 9) {
-            return "Draw";
-        } else {
-            return "Pending";
-        }
-    }
-
-    private String judge_horizontal(char[][] normalizedMoves) {
-        for (int i = 0; i < 3; i++) {
-            int x_counts = 0, o_counts = 0;
-            for (int j = 0; j < 3; j++) {
-                char curr_play = normalizedMoves[i][j];
-                if (curr_play == 'X') {
-                    x_counts++;
-                } else if (curr_play == 'O') {
-                    o_counts++;
-                }
-                if (x_counts == 3) return A;
-                if (o_counts == 3) return B;
+            if (i % 2 == 0 && playerA.add(moves[i][0], moves[i][1])) {
+                return A;
+            } else if (i % 2 != 0 && playerB.add(moves[i][0], moves[i][1])) {
+                return B;
             }
         }
-        return null;
+        return moves.length == 9 ? "Draw" : "Pending";
     }
 
-    private String judge_vertical(char[][] normalizedMoves) {
-        for (int i = 0; i < 3; i++) {
-            int x_counts = 0, o_counts = 0;
-            for (int j = 0; j < 3; j++) {
-                char curr_play = normalizedMoves[j][i];
-                if (curr_play == 'X') {
-                    x_counts++;
-                } else if (curr_play == 'O') {
-                    o_counts++;
-                }
-                if (x_counts == 3) return A;
-                if (o_counts == 3) return B;
-            }
-        }
-        return null;
-    }
+    class PlayerTracker {
+        int[] rows;
+        int[] columns;
+        int[] diagonal;
+        boolean winner;
 
-    private String judge_right_diagonal(char[][] normalizedMoves) {
-        int x_counts = 0, o_counts = 0;
-        for (int i = 0; i < 3; i++) {
-            char curr_play = normalizedMoves[i][i];
-            if (curr_play == 'X') {
-                x_counts++;
-            } else if (curr_play == 'O') {
-                o_counts++;
-            }
-            if (x_counts == 3) return A;
-            if (o_counts == 3) return B;
-        }
-        return null;
-    }
-
-    private String judge_left_diagonal(char[][] normalizedMoves) {
-        int x_counts = 0, o_counts = 0;
-        for (int i = 0; i < 3; i++) {
-            char curr_play = normalizedMoves[i][2 - i];
-            if (curr_play == 'X') {
-                x_counts++;
-            } else if (curr_play == 'O') {
-                o_counts++;
-            }
-            if (x_counts == 3) return A;
-            if (o_counts == 3) return B;
+        public PlayerTracker() {
+            rows = new int[3];
+            columns = new int[3];
+            diagonal = new int[2];
+            winner = false;
         }
 
-        return null;
+        public boolean add(int x, int y) {
+            if (++rows[x] == size) {
+                winner = true;
+            }
+
+            if (++columns[y] == size) {
+                winner = true;
+            }
+            if (x == y && ++diagonal[0] == size) {
+                winner = true;
+            }
+            if (x + y == 2 && ++diagonal[1] == size) {
+                winner = true;
+            }
+            return winner;
+        }
     }
 }
