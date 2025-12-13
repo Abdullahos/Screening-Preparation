@@ -106,10 +106,10 @@ public class GenGenerator {
       // each full iteration == 1 time unit
       boolean nothingRemoved = true;
       int xorMask = 0;
-      for (int i = length - 1; i > 0; i--) {
+      for (int i = 1; i < length; i++) {
 
         if ((available & (1 << length - i - 1)) != 0 && genome.charAt(i) == mutation) {
-          // all zeros except i position
+          // all ones to left of i
           int mask = ~((1 << (length - i)) - 1);
           int res = available & mask;
           // get the position of 1st available 1 from the right

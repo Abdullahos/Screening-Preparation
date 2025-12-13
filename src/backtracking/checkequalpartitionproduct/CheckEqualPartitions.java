@@ -1,4 +1,4 @@
-package backtracking;
+package backtracking.checkequalpartitionproduct;
 
 import java.util.*;
 
@@ -58,6 +58,7 @@ public class CheckEqualPartitions {
         return found;
     }
 
+    //can overflow for multAcc values as we trying to compress it into int
     private CompositeKey getKey(long multAcc, int start) {
         return new CompositeKey(start, multAcc);
     }
@@ -82,6 +83,8 @@ public class CheckEqualPartitions {
 
         @Override
         public int hashCode() {
+            //can overflow for multAcc values as we trying to compress it into int .. also Objects.hash is slow as internally it convert into array.
+            //instead check this solution: backtracking/checkequalpartitionproduct/LogSolution.java
             return Objects.hash(index, product);
         }
     }
