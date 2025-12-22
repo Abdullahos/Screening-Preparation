@@ -21,34 +21,32 @@ public class SpiralOrder {
     return spiralRep;
   }
 
-  private void constructSpiralRep(
-      int[][] matrix, List<Integer> spiralRep, boolean[][] visited, int n, int m, int i, int j) {
+  private void constructSpiralRep(int[][] matrix, List<Integer> spiralRep, boolean[][] visited, int n, int m, int i, int j) {
     int visitedCount = 1;
     while (visitedCount < n * m) {
       while (i - 1 >= 0 && !visited[i - 1][j]) {
         i--;
-        visited[i][j] = true;
-        spiralRep.add(matrix[i][j]);
-        visitedCount++;
+        visitedCount = getVisitedCount(matrix, spiralRep, visited, i, j, visitedCount);
       }
       while (j + 1 < m && !visited[i][j + 1]) {
         j++;
-        visited[i][j] = true;
-        spiralRep.add(matrix[i][j]);
-        visitedCount++;
+        visitedCount = getVisitedCount(matrix, spiralRep, visited, i, j, visitedCount);
       }
       while (i + 1 < n && !visited[i + 1][j]) {
         i++;
-        visited[i][j] = true;
-        spiralRep.add(matrix[i][j]);
-        visitedCount++;
+        visitedCount = getVisitedCount(matrix, spiralRep, visited, i, j, visitedCount);
       }
       while (j - 1 >= 0 && !visited[i][j - 1]) {
         j--;
-        visited[i][j] = true;
-        spiralRep.add(matrix[i][j]);
-        visitedCount++;
+        visitedCount = getVisitedCount(matrix, spiralRep, visited, i, j, visitedCount);
       }
     }
+  }
+
+  private int getVisitedCount(int[][] matrix, List<Integer> spiralRep, boolean[][] visited, int i, int j, int visitedCount) {
+    visited[i][j] = true;
+    spiralRep.add(matrix[i][j]);
+    visitedCount++;
+    return visitedCount;
   }
 }
