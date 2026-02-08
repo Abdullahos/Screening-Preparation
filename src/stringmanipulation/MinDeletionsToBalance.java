@@ -1,55 +1,67 @@
 package stringmanipulation;
 
-import java.util.function.Function;
-import java.util.function.ToIntFunction;
-
 public class MinDeletionsToBalance {
 
     public int minimumDeletions(String s) {
-        int min_left = 0;
-        int min_right = 0;
+        int n = s.length();
+        int[][] prefix_freq_left = new int[2][n];
+        int[][] prefix_freq_right = new int[2][n];
+
+        int min_l, min_r;
+
+        prefix_freq_left[s.charAt(0) - 'a'][0] = 1;
+        for (int i = 1; i < s.length(); i++) {
+            prefix_freq_left[s.charAt(i) - 'a'][i] = 1;
+            prefix_freq_left[0][i] += prefix_freq_left[0][i - 1];
+            prefix_freq_left[1][i] += prefix_freq_left[1][i - 1];
+        }
 
 
-        int last_a_Majority_ends_at = getLastAMajorityEndsAt(s, 0, 1, i -> (i < s.length()), 0, (int[] freqs) -> freqs[0] - freqs[1]);
+        if (prefix_freq_left[0][n - 1] == n || prefix_freq_left[1][n - 1] == n) {
+            return 0;
+        }
+
+        prefix_freq_right[s.charAt(n - 1) - 'a'][n - 1] = 1;
+        for (int i = s.length() - 2; i >= 0; i--) {
+            prefix_freq_right[s.charAt(i) - 'a'][i]++;
+            prefix_freq_right[0][i] += prefix_freq_right[0][i + 1];
+            prefix_freq_right[1][i] += prefix_freq_right[1][i + 1];
+        }
+
+
+        int maxDiff = Integer.MIN_VALUE;
+        int maxDiffFromLeftWasAt = 0;
 
         for (int i = 0; i < s.length(); i++) {
-            if ((i <= last_a_Majority_ends_at && s.charAt(i) == 'b') || (i > last_a_Majority_ends_at && s.charAt(i) == 'a')) {
-                min_left++;
+            int diff = prefix_freq_left[0][i] - prefix_freq_left[1][i];
+
+            if (diff >= maxDiff && s.charAt(i) == 'a') {
+                maxDiffFromLeftWasAt = i;
+                maxDiff = diff;
             }
         }
 
-        int last_b_Majority_ends_at = getLastAMajorityEndsAt(s, s.length() - 1, -1, i -> i >= 0, s.length() - 1, (int[] freqs) -> freqs[1] - freqs[0]);
+        int a_to_delete = maxDiffFromLeftWasAt < n - 1 ? prefix_freq_left[0][n - 1] - prefix_freq_left[0][maxDiffFromLeftWasAt + 1] : 0;
+        int b_to_delete = prefix_freq_left[1][maxDiffFromLeftWasAt];
+        min_l = a_to_delete + b_to_delete;
+
+        maxDiff = Integer.MIN_VALUE;
+        int maxDiffFromRightWasAt = 0;
 
         for (int i = s.length() - 1; i >= 0; i--) {
-            if ((s.charAt(i) == 'a' && i >= last_b_Majority_ends_at) || (i < last_b_Majority_ends_at && s.charAt(i) == 'b')) {
-                min_right++;
+            int diff = prefix_freq_right[1][i] - prefix_freq_right[0][i];
+
+            if (diff >= maxDiff && s.charAt(i) == 'b') {
+                maxDiffFromRightWasAt = i;
+                maxDiff = diff;
             }
         }
 
-        return Math.min(min_left, min_right);
+        a_to_delete = prefix_freq_right[0][maxDiffFromRightWasAt];
+        b_to_delete = maxDiffFromRightWasAt > 0 ? prefix_freq_right[1][0] - prefix_freq_right[1][maxDiffFromRightWasAt - 1] : 0;
+        min_r = a_to_delete + b_to_delete;
+
+        return Math.min(min_l, min_r);
     }
 
-    private int getLastAMajorityEndsAt(String s, int start, int step, Function<Integer, Boolean> compFn, int last_a_Majority_ends_at, ToIntFunction<int[]> diffFn) {
-        int maxFreqDiff = Integer.MIN_VALUE;
-        int[] freqs = new int[2];
-
-        for (int i = start; compFn.apply(i); i += step) {
-            char c = s.charAt(i);
-            freqs[c - 'a']++;
-            int diff = diffFn.applyAsInt(freqs);
-            if (diff >= maxFreqDiff) {
-                last_a_Majority_ends_at = i;
-                maxFreqDiff = diff;
-            }
-        }
-        return last_a_Majority_ends_at;
-    }
-
-    public static int diff(int[] array, ToIntFunction<int[]> operation) {
-        // Basic error checking
-        if (array == null || array.length < 2) {
-            throw new IllegalArgumentException("Array must not be null and must have at least 2 elements.");
-        }
-        return operation.applyAsInt(array);
-    }
 }
