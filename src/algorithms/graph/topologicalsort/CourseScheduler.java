@@ -1,127 +1,89 @@
 package algorithms.graph.topologicalsort;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
+//IF numCourses courses you have to take, labeled from 0 to numCourses - 1,
+// then we can get adv of knowing the size of depOnMe & weights so we don't need map/Node class to hold the dep/pre relation anymore
 public class CourseScheduler {
-
     public boolean canFinish(int numCourses, int[][] prerequisites) {
-        HashMap<Integer, Node> nodes = new HashMap<>();
-        PriorityQueue<Node> pq = new PriorityQueue<>();
+        List<List<Integer>> depOnMe = new ArrayList<>();
+        int[] weights = new int[numCourses];
+        Queue<Integer> pq = new LinkedList<>();
 
-        AtomicInteger nums = new AtomicInteger();
+        for (int i = 0; i < numCourses; i++) {
+            depOnMe.add(new ArrayList<>());
+        }
 
         for (int[] pair : prerequisites) {
-            Node dep = new Node(pair[0]);
-            Node pre = new Node(pair[1]);
+            int dep = pair[0];
+            int pre = pair[1];
 
-            if (nodes.containsKey(dep.label)) {
-                dep = nodes.get(dep.label);
-                dep.pres.add(pre);
-            } else {
-                dep.pres.add(pre);
-                nodes.put(dep.label, dep);
-                nums.getAndIncrement();
-            }
+            List<Integer> deps = depOnMe.get(pre);
+            deps.add(dep);
 
-            if (nodes.containsKey(pre.label)) {
-                pre = nodes.get(pre.label);
-                pre.deps.add(dep);
-            } else {
-                pre.deps.add(dep);
-                nodes.put(pre.label, pre);
-                nums.getAndIncrement();
-            }
+            weights[dep]++; //how many courses i depends on
         }
 
-        nodes.values().stream().filter(node -> node.pres.isEmpty()).forEach(node -> {
-            pq.offer(node);
-            nums.getAndDecrement();
-        });
+        for (int i = 0; i < weights.length; i++) {
+            if (weights[i] == 0) {
+                pq.add(i);
+            }
+        }
 
         while (!pq.isEmpty()) {
-            Node cur = pq.poll();
+            int course = pq.poll();
             numCourses--;
 
-            cur.deps.forEach(dep -> {
-                dep.pres.remove(cur);
+            List<Integer> deps = depOnMe.get(course);
 
-                if (dep.pres.isEmpty()) {
+            deps.forEach(dep -> {
+                if (--weights[dep] == 0) {
                     pq.add(dep);
-                    nums.getAndDecrement();
                 }
             });
+
         }
 
-        return nums.get() == 0;
+        return numCourses == 0;
+    }
+
+    //slower to hashing overhead
+    public boolean canFinishSlower(int numCourses, int[][] prerequisites) {
+        int[] inDegree = new int[numCourses];
+        Map<Integer, List<Integer>> whoDependingOnMe = new HashMap<>();
+
+        for (int[] pair : prerequisites) {
+            int course = pair[0];
+            int pre = pair[1];
+
+            List<Integer> dependings = whoDependingOnMe.getOrDefault(pre, new ArrayList<>());
+            dependings.add(course);
+            whoDependingOnMe.put(pre, dependings);
+
+            inDegree[course]++;
+        }
+
+        Queue<Integer> queue = new PriorityQueue<>();
+        for (int i = 0; i < numCourses; i++) {
+            if (inDegree[i] == 0) {
+                queue.add(i);
+            }
+        }
+
+        while (!queue.isEmpty()) {
+            int course = queue.remove();
+            List<Integer> dependings = whoDependingOnMe.getOrDefault(course, new ArrayList<>());
+
+            for (int dep : dependings) {
+                if (--inDegree[dep] == 0) {
+                    queue.add(dep);
+                }
+            }
+
+            numCourses--;
+
+        }
+
+        return numCourses == 0;
     }
 }
-
-class Node implements Comparable<Node> {
-    int label;
-    Set<Node> pres;
-    Set<Node> deps;
-
-    public Node(int label) {
-        this.label = label;
-        pres = new HashSet<Node>();
-        deps = new HashSet<Node>();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Node node = (Node) o;
-        return label == node.label;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(label);
-    }
-
-    @Override
-    public int compareTo(Node o) {
-        return Integer.compare(pres.size(), o.pres.size());
-    }
-
-
-    public static void main(String[] args) {
-        CourseScheduler cs = new CourseScheduler();
-        int[][] arr = {
-                {1, 0},
-                {0, 3},
-                {0, 2},
-                {3, 2},
-                {2, 5},
-                {4, 5},
-                {5, 6},
-                {2, 4}
-        };
-
-        int[][] arr2= {
-                {1, 4},
-                {2, 4},
-                {3, 1},
-                {3, 2}
-        };
-
-        int[][] arr3 = {
-                {0, 10},
-                {3, 18},
-                {5, 5},
-                {6, 11},
-                {11, 14},
-                {13, 1},
-                {15, 1},
-                {17, 4}
-        };
-
-        int[][] arr4 = {
-                {2,0},{2,1}
-        };
-
-        cs.canFinish(3, arr4);
-    }
-}
-

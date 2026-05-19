@@ -1,49 +1,71 @@
 package algorithms.graph.topologicalsort;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-//IF numCourses courses you have to take, labeled from 0 to numCourses - 1,
-// then we can get adv of knowing the size of depOnMe & weights so we don't need map/Node class to hold the dep/pre relation anymore
+//Topological sort
 public class CourseScheduler2 {
-    public boolean canFinish(int numCourses, int[][] prerequisites) {
-        List<List<Integer>> depOnMe = new ArrayList<>();
-        int[] weights = new int[numCourses];
-        Queue<Integer> pq = new LinkedList<>();
+    public int[] findOrder(int numCourses, int[][] prerequisites) {
+        List<Integer> order = new ArrayList<>();
+        boolean[] visited = new boolean[numCourses];
+
+        List<List<Integer>> adj = new ArrayList<>();
 
         for (int i = 0; i < numCourses; i++) {
-            depOnMe.add(new ArrayList<>());
+            adj.add(new ArrayList<>());
         }
 
         for (int[] pair : prerequisites) {
-            int dep = pair[0];
-            int pre = pair[1];
+            int course = pair[0];
+            int dep = pair[1];
 
-            List<Integer> deps = depOnMe.get(pre);
-            deps.add(dep);
-
-            weights[dep]++; //how many courses i depends on
+            adj.get(course).add(dep);
         }
 
-        for (int i = 0; i < weights.length; i++) {
-            if (weights[i] == 0) {
-                pq.add(i);
+        boolean[] path = new boolean[numCourses];
+        boolean isCyclic = false;
+
+        for (int i = 0; i < numCourses; i++) {
+            isCyclic = visit(adj, i, visited, path, order);
+            if (isCyclic) {
+                return new int[] {};
             }
         }
 
-        while (!pq.isEmpty()) {
-            int course = pq.poll();
-            numCourses--;
-
-            List<Integer> deps = depOnMe.get(course);
-
-            deps.forEach(dep -> {
-                if (--weights[dep] == 0) {
-                    pq.add(dep);
-                }
-            });
-
+        int[] res = new int[numCourses];
+        for (int i = 0; i < numCourses; i++) {
+            res[i] = order.get(i);
         }
 
-        return numCourses == 0;
+        return res;
+    }
+
+    private boolean visit(List<List<Integer>> adj, int course, boolean[] visited, boolean[] path, List<Integer> order) {
+        if (path[course]) {
+            return true;
+        }
+
+        if (visited[course]) {
+            return false;
+        }
+
+        path[course] = true;
+
+        visited[course] = true;
+
+        boolean isCyclic;
+
+        for (int dep : adj.get(course)) {
+            isCyclic = visit(adj, dep, visited, path, order);
+            if (isCyclic) {
+                return true;
+            }
+        }
+
+        order.add(course);
+
+        path[course] = false;
+
+        return false;
     }
 }
